@@ -1,0 +1,53 @@
+mail_owner = postfix                   # <= メール所有者
+
+myhostname = mail.halkichi-web.com     # <= ホスト名
+
+mydomain = halkichi-web.com            # <= ドメイン名
+
+myorigin = $mydomain                   # <= ローカルからのメール送信時の送信元メールアドレス@以降にドメイン名を付加
+
+inet_interfaces = all                  # <= 外部からのメール受信を許可
+
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain  # <= 自ドメイン宛メールを受信できるようにする
+
+local_recipient_maps = unix:passwd.byname $alias_maps  # <= サーバにアカウントがあれば、その人宛に届く
+
+mynetworks = 127.0.0.0/8, 172.17.0.0/16  # <= 自ネットワーク
+
+alias_maps = hash:/etc/aliases         # <= 受信メールの再転送先ファイル
+
+alias_database = hash:/etc/aliases     # <= newaliasesコマンドの実行対象
+
+home_mailbox = Maildir/                # <= メールボックス形式を Maildir 形式に
+
+#smtpd_banner = $myhostname ESMTP $mail_name (@@DISTRO@@)
+smtpd_banner = $myhostname ESMTP       # <= メールサーバーソフト名の隠蔽化
+
+sendmail_path = /usr/sbin/postfix      # <= Postfix sendmail コマンドの場所
+
+newaliases_path = /usr/bin/newaliases  # <= Postfix newaliases コマンドの場所
+
+mailq_path = /usr/bin/mailq            # <= Postfix mailq コマンドの場所
+
+setgid_group = postdrop                # <= set-gid Postfix コマンドおよびグループ書き込み可能な Postfix ディレクトリを所有するグループ
+
+#html_directory =                      # <= コメント化
+
+#manpage_directory =                   # <= コメント化
+
+#sample_directory =                    # <= コメント化
+
+#readme_directory =                    # <= コメント化
+
+# 最終行へ追加
+message_size_limit = 10485760          # <= 送受信メールサイズを10Mに制限
+mailbox_size_limit = 1073741824        # <= メールボックスサイズを1Gに制限
+
+# SMTP-Auth用
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_local_domain = $myhostname
+smtpd_client_restrictions = permit_mynetworks,reject_unknown_client,permit
+smtpd_recipient_restrictions = permit_mynetworks,permit_auth_destination,permit_sasl_authenticated,reject
